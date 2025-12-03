@@ -42,11 +42,7 @@ class Cliente{
         
     }
 
-    
-
 }
-
-
 
 let headson = new Cliente("headson", 110)
 let kenzo = new Cliente("kenzo", 120)
