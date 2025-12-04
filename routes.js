@@ -1,20 +1,19 @@
 const express = require('express');
+const path = require('path');
 const app = express();
 
-// GET request to the root path
 app.get('/', (req, res) => {
-    res.render('index');
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.get('/banco', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/banco.html'));
 });
 
 app.get('/cadastro', (req, res) => {
-    res.render('cadastro')
-})
+  res.sendFile(path.join(__dirname, 'public/cadastro.html'));
+});
 
-app.get('/banco', (req, res) => {
-    res.render('banco')
-})
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
 });
