@@ -3,12 +3,34 @@
 
 // let myuuid = uuidv4();
 
-class Agencia{
+// function criarCliente(event)
+// {
+	
+// 	event.preventDefault()
+	
+//     const form = event.target
+	
+//     const dadosForm = new FormData(form)
+	
+//     const nome = dadosForm.get('nome')
 
+//     const cpf = dadosForm.get('CPF')
+
+//     const cep = dadosForm.get('CEP')
+    
+//     const email = dadosForm.get('email')
+	
+//     const senha = dadosForm.get('senha')
+	
+//     return new Cliente(nome, 1000, cpf, cep, email, senha)
+// }
+
+// document.getElementById('formu').addEventListener('submit', criarCliente)
+class Agencia{
+    
 }
 
 class Cliente{
-    // id
     nome
     email
     senha
@@ -17,7 +39,7 @@ class Cliente{
     saldo = 0
     movimentacoes = []
 
-    constructor (nome, saldo, cpf, email, senha, cep){
+    constructor (nome, saldo, cpf = null, cep, email = null, senha = null){
         this.nome = nome
         this.saldo = saldo
         this.cpf = this.validaCPF(cpf)
@@ -49,7 +71,7 @@ class Cliente{
         ].indexOf(strCPF) !== -1)
         return false
 
-    for (i=1; i<=9; i++)
+    for ( let i=1; i<=9; i++)
         Soma = Soma + parseInt(strCPF.substring(i-1, i)) * (11 - i);
 
     Resto = (Soma * 10) % 11
@@ -62,7 +84,7 @@ class Cliente{
 
     Soma = 0
 
-    for (i = 1; i <= 10; i++)
+    for (let i = 1; i <= 10; i++)
         Soma = Soma + parseInt(strCPF.substring(i-1, i)) * (12 - i)
 
     Resto = (Soma * 10) % 11
@@ -78,9 +100,9 @@ class Cliente{
 
     async validarcep(cepe) {
         try {
-            const response = await fetch(`viacep.com.br/ws/${cepe}/json/`);
+            const response = await fetch(`http://viacep.com.br/ws/${cepe}/json/`);
             const cep = await response.json();
-            if (cep.logradouro){
+            if (cep){
                 return cepe
             }
             else{
@@ -92,20 +114,25 @@ class Cliente{
     }
 
     saque(valor){
-        return this.saldo -= valor  
+        let tipo = 'Saque'
+        this.saldo -= valor
+        this.movimentacoes.push(new Transacao(tipo, valor))
     }
 
     deposito(valor){
-        return this.saldo += valor
+        let tipo = 'Depósito'
+        this.saldo += valor
+        this.movimentacoes.push(new Transacao(tipo, valor))
     }
 
     transferencia(valor, pessoa2){
+        let tipo = 'transferencia'
         try{
             if (pessoa2.nome){
                 this.saldo -= valor
                 pessoa2.saldo += valor
-        
-                return `novo saldo: ${this.saldo}, valor enviado para ${pessoa2.nome}: ${valor}, Saldo novo de ${pessoa2.nome}: ${pessoa2.saldo}`
+                this.movimentacoes.push(new Transacao(tipo, valor))
+                return (`novo saldo: ${this.saldo}, valor enviado para ${pessoa2.nome}: ${valor}, Saldo novo de ${pessoa2.nome}: ${pessoa2.saldo}`)
             }  
         }
         catch (error){
@@ -114,12 +141,33 @@ class Cliente{
         
     }
 
+}
+
+class Transacao{
+    id_transaction
+    timeStamp
+    tipo
+    valor
+
+    static contador = 0
+
+    constructor (tipo, valor){
+
+        this.id_transaction = ++Transacao.contador
+        this.timeStamp = new Date()
+        this.tipo = tipo
+        this.valor = valor
+
+    }
     
 
 }
 
-let headson = new Cliente("headson", 110)
-let kenzo = new Cliente("kenzo", 120)
+let headson = new Cliente("headson", 110,"09171634193", 79630580)
+let kenzo = new Cliente("kenzo", 120, "09171634193", 79630580)
 kenzo.saque(100)
 console.log(kenzo.saldo)
 console.log(kenzo.transferencia(10, headson))
+kenzo.deposito(1000)
+headson.deposito(12)
+console.log(kenzo.movimentacoes)
