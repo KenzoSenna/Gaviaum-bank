@@ -9,41 +9,43 @@
 </head>
 
 <body>
-    <header class="d-flex flex-wrap justify-content-center py-4 mb-4 border-bottom">
-        <a href="index.html"
-            class="d-flex align-items-center mb-4 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-            <!-- <svg class="bi me-2" width="40" height="32" aria-hidden="true">
-            
-            </svg> -->
-            <h3>Gaviaum's Bank</h3>
-            <small class="text text-small text-muted">
-                The place who no one's want's the another.
-            </small>
-        </a>
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a href="index.html" class="nav-link">Home</a>
-            </li>
-            <li class="nav-item"><a href="login.html" class="nav-link active" aria-current="page">Login</a></li>
-            <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+  <header class="container py-3 border-bottom">
+    <div class="row align-items-center">
+      <div class="col-8 col-md-4 d-flex align-items-center">
+        <img src="../images/Animals-Falcon-icon.png" alt="falcão" class="img-fluid me-2" style="max-width:48px;">
+        <div>
+          <h3 class="h6 mb-3">Gaviaum's Bank</h3>
+          <p class="small mb-2 text-muted d-none d-md-block">The place where no one wants what another has.</p>
+        </div>
+      </div>
+
+      <nav class="col-4 col-md-8">
+        <ul class="nav justify-content-end nav-pills">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/login">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cadastro">Cadastro</a></li>
         </ul>
-    </header>
+      </nav>
+    </div>
+  </header>
     
     <main>
-        <div class="container">
+        <div class="container mt-4">
             <!-- aqui vai ficar o formulario onde vai ter o login, deve conter os campos: Email e Senha -->
-            <form>
+            <form id="login" method="POST" action="/login" class="mt-4">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="nome@examplo.com">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="nome@examplo.com" required>
                 </div>
                 <div class="mb-3">
                     <label for="senha" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="senha" placeholder="Senha">
+                    <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" required>
                 </div>
-            </form>
-            <button type="submit" class="btn btn-primary">Login</button>
-            <p class="text text-muted text-small">Ao clicar em login, você será enviado para o banco diretamente (caso dado seja validado)</p>
+                    </form>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p class="text text-muted text-small">Ao clicar em login, você será enviado para o banco diretamente (caso dado seja validado)</p>
+                </div>
+            </main>
         </div>
     </main>
 
