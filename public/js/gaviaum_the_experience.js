@@ -3,29 +3,6 @@
 
 // let myuuid = uuidv4();
 
-// function criarCliente(event)
-// {
-	
-// 	event.preventDefault()
-	
-//     const form = event.target
-	
-//     const dadosForm = new FormData(form)
-	
-//     const nome = dadosForm.get('nome')
-
-//     const cpf = dadosForm.get('CPF')
-
-//     const cep = dadosForm.get('CEP')
-    
-//     const email = dadosForm.get('email')
-	
-//     const senha = dadosForm.get('senha')
-	
-//     return new Cliente(nome, 1000, cpf, cep, email, senha)
-// }
-
-// document.getElementById('formu').addEventListener('submit', criarCliente)
 class Agencia{
     
 }
