@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
   <header class="container py-3 border-bottom">
     <div class="row align-items-center">
       <div class="col-8 col-md-4 d-flex align-items-center">
@@ -30,11 +30,48 @@
   </header>
 
 
-  <main>
-    <div class="d-flex "></div>
+  <main class="flex-grow-1">
+    <!-- Tela onde ficará a apresentação do banco para o usuário -->
+    <!-- Três cards devem ficar exibindo mensagens como, segurança, confiança e facilidade -->
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Segurança</h5>
+              <p class="card-text">Seu dinheiro protegido com as mais avançadas tecnologias de segurança
+                bancária.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Confiança</h5>
+              <p class="card-text">Um banco no qual oferece além de sucesso, confiança. Venha ser um <strong>Gavião</strong>!</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Facilidade</h5>
+              <p class="card-text">Facilidade no uso, interface intuitiva para os mais diversos usuários <strong>gaviões</strong>!</p>
+            </div>
+          </div>
+        </div>
+
+
+    </div>
 
 
   </main>
+
+  <footer class="mt-auto container py-3 border-top text-center">
+      <p class="text-muted mb-0">&copy; 2024 Gaviaum's Bank. All rights reserved.</p>
+  </footer>
+
+
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
