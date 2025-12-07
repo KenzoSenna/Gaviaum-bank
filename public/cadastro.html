@@ -9,7 +9,7 @@
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
   <header class="container py-3 border-bottom">
     <div class="row align-items-center">
       <div class="col-8 col-md-4 d-flex align-items-center">
@@ -30,7 +30,7 @@
     </div>
   </header>
 
-    <main>
+    <main class="flex-grow-1">
         <form id="cadastro" method="POST" action="/cadastro" class="container mt-4">
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome Completo</label>
@@ -54,6 +54,9 @@
             <button type="submit" class="btn btn-primary">Cadastrar</button>
         </form>
     </main>
+    <footer class="mt-auto container py-3 border-top text-center">
+      <p class="text-muted mb-0">&copy; 2024 Gaviaum's Bank. All rights reserved.</p>
+    </footer>
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
