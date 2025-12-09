@@ -32,13 +32,24 @@
   </header>
 
     <main class="flex-grow-1">
-        
+      <div class="container mt-4">
+        <!-- aqui vai ficar o formulario onde vai ter a transferencia, deve conter os campos: valor, cpf_destino -->
+        <form id="transferencia" class="mt-4">
+          <div class="mb-3">
+            <label for="valor" class="form-label">Valor da Transferência</label>
+            <input type="number" class="form-control" id="valor" name="valor" placeholder="0.00" step="0.01" min="0" required>
+          </div>
+          <div class="mb-3">
+            <label for="cpf_destino" class="form-label">CPF do Destinatário</label>
+            <input type="text" class="form-control" id="cpf_destino" name="cpf_destino" placeholder="00000000000" pattern="\d{11}" required>  
+      </div>
     </main>
 
     <footer class="mt-auto container py-3 border-top text-center">
       <p class="text-muted mb-0">&copy; 2024 Gaviaum's Bank. All rights reserved.</p>
     </footer>
 </body>
+<script src="./js/gaviaum_the_experience.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
 </script>

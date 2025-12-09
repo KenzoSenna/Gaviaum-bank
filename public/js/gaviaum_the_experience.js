@@ -2,10 +2,11 @@
 // import v4 from 'uuid';
 
 // let myuuid = uuidv4();
-
+const usuarios_criados = []
 class Agencia{
     
 }
+
 
 class Cliente{
     nome
@@ -140,11 +141,76 @@ class Transacao{
 
 }
 
-let headson = new Cliente("headson", 110,"09171634193", 79630580)
-let kenzo = new Cliente("kenzo", 120, "09171634193", 79630580)
-kenzo.saque(100)
-console.log(kenzo.saldo)
-console.log(kenzo.transferencia(10, headson))
-kenzo.deposito(1000)
-headson.deposito(12)
-console.log(kenzo.movimentacoes)
+function loadUsers() {
+  return JSON.parse(localStorage.getItem('users') || '[]');
+}
+function saveUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+function loadCurrentUser() {
+  return JSON.parse(localStorage.getItem('currentUser') || 'null');
+}
+function saveCurrentUser(user) {
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  // também atualiza o array users para persistir mudanças
+  const users = loadUsers();
+  const i = users.findIndex(u => u.cpf === user.cpf || u.email === user.email); // Ambos são atributos únicos, coloquei como se fossem ID's
+  if (i >= 0) {
+    users[i] = { ...users[i], ...user }; // sobrescreve campos (saldo, movimentacoes etc)
+    saveUsers(users);
+  }
+}
+// Sim, eu desisti de modularizar tudo isso.
+// Deposito
+
+document.getElementById('login').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const { valor } = Object.fromEntries(new FormData(e.target))
+    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
+    user_atual.deposito(valor)
+
+})
+
+// saque
+
+document.getElementById('saque').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor } = Object.fromEntries(new FormData(e.target))
+    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
+    user_atual.saque(valor)
+})
+
+// transferencia
+
+document.getElementById('transferencia').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor, cpf_destino } = Object.fromEntries(new FormData(e.target))
+    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
+    const destinatario = usuarios_criados.find(user => user.cpf === cpf_destino)
+    user_atual.transferencia(valor, destinatario)
+})
+
+// Funções de hidratação e desidratação (usar um localStorage e transforma-lo em objeto Cliente e vice-versa)
+
+function hidratarUser(raw) {
+  const c = new Cliente(raw.nome, raw.saldo, raw.cpf, raw.cep, raw.email, raw.senha);
+  c.movimentacoes = Array.isArray(raw.movimentacoes) ? raw.movimentacoes.map(m => Object.assign(new Transacao(), m)) : [];
+  return c;
+}
+
+function desidatarUser(cliente) {
+  return {
+    nome: cliente.nome, email: cliente.email, cpf: cliente.cpf,
+    cep: cliente.cep, saldo: cliente.saldo, senha: cliente.senha,
+    movimentacoes: cliente.movimentacoes
+  };
+}
+
+function userDeposito(valor){
+    // não funciona pois é um objeto plano, não uma instância de Cliente
+
+    user_atual = loadCurrentUser()
+    user_atual.deposito(valor)
+    saveCurrentUser(user_atual)
+}
