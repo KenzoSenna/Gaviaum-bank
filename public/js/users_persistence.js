@@ -1,3 +1,4 @@
+
 document.getElementById('cadastro').addEventListener('submit', (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
@@ -8,6 +9,7 @@ document.getElementById('cadastro').addEventListener('submit', (e) => {
   }
   users.push({ id: Date.now(), nome: data.nome, email: data.email, senha: data.senha, cpf: data.cpf, saldo: 0 });
   localStorage.setItem('users', JSON.stringify(users));
+  
   alert('Cadastro realizado');
   window.location.href = '/login';
 });

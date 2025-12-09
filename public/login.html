@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gaviaum's Bank</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Gaviaum's Bank</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -28,30 +29,31 @@
       </nav>
     </div>
   </header>
-    
+
   <main class="flex-grow-1">
-        <div class="container mt-4">
-            <!-- aqui vai ficar o formulario onde vai ter o login, deve conter os campos: Email e Senha -->
-            <form id="login" method="POST" action="/login" class="mt-4">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="nome@examplo.com" required>
-                </div>
-                <div class="mb-3">
-                    <label for="senha" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" required>
-                </div>
-                    </form>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <p class="text text-muted text-small">Ao clicar em login, você será enviado para o banco diretamente (caso dado seja validado)</p>
-                </div>
-            </main>
+    <div class="container  mt-4">
+      <!-- aqui vai ficar o formulario onde vai ter o login, deve conter os campos: Email e Senha -->
+      <form id="login" class="mt-4"> 
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="nome@examplo.com" required>
         </div>
-    </main>
-    <footer class="mt-auto container py-3 border-top text-center">
-      <p class="text-muted mb-0">&copy; 2024 Gaviaum's Bank. All rights reserved.</p>
-    </footer>   
+        <div class="mb-3">
+          <label for="senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <p class="text text-muted text-small">Ao clicar em login, você será enviado para o banco diretamente (caso dado
+          seja validado)</p>
+      </form>
+    </div>
+  </main>
+  <footer class="mt-auto container py-3 border-top text-center">
+    <p class="text-muted mb-0">&copy; 2024 Gaviaum's Bank. All rights reserved.</p>
+  </footer>
 </body>
-    <script src="./js/login_verification.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6V6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"></script>
+<script src="./js/login_verification.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6V6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"></script>
+
 </html>
