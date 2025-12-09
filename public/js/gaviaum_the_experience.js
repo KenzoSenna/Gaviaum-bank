@@ -160,15 +160,62 @@ function saveCurrentUser(user) {
     saveUsers(users);
   }
 }
-// Sim, eu desisti de modularizar tudo isso.
-// Deposito
 
-document.getElementById('login').addEventListener('submit', (e) => {
+// Funções de hidratação e desidratação (usar um localStorage e transforma-lo em objeto Cliente e vice-versa)
+
+function hidratarUser(raw) {
+  const c = new Cliente(raw.nome, raw.saldo, raw.cpf, raw.cep, raw.email, raw.senha);
+  c.movimentacoes = Array.isArray(raw.movimentacoes) ? raw.movimentacoes.map(m => Object.assign(new Transacao(), m)) : [];
+  return c;
+}
+
+function desidratarUser(cliente) {
+  return {
+    nome: cliente.nome, email: cliente.email, cpf: cliente.cpf,
+    cep: cliente.cep, saldo: cliente.saldo, senha: cliente.senha,
+    movimentacoes: cliente.movimentacoes
+  };
+}
+
+function userDeposito(valor){
+    // não funciona pois é um objeto plano, não uma instância de Cliente
+    user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.deposito(valor)
+        const userDesidratado = desidatarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+    
+}
+
+function userSaque(valor){
+    user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.saque(valor)
+        const userDesidratado = desidatarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+}   
+
+function userTransferencia(valor, pessoa2){
+    user_atual = hidratarUser(loadCurrentUser())
+    user_pessoa_2 = hidratarUser()
+
+
+    // Sim, eu desisti de modularizar tudo isso.
+// Depósito
+
+document.getElementById('deposito').addEventListener('submit', (e) => {
     e.preventDefault();
 
     const { valor } = Object.fromEntries(new FormData(e.target))
-    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
-    user_atual.deposito(valor)
+    userDeposito(valor)
 
 })
 
@@ -177,8 +224,7 @@ document.getElementById('login').addEventListener('submit', (e) => {
 document.getElementById('saque').addEventListener('submit', (e) => {
     e.preventDefault();
     const { valor } = Object.fromEntries(new FormData(e.target))
-    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
-    user_atual.saque(valor)
+    userSaque(valor)
 })
 
 // transferencia
@@ -190,27 +236,4 @@ document.getElementById('transferencia').addEventListener('submit', (e) => {
     const destinatario = usuarios_criados.find(user => user.cpf === cpf_destino)
     user_atual.transferencia(valor, destinatario)
 })
-
-// Funções de hidratação e desidratação (usar um localStorage e transforma-lo em objeto Cliente e vice-versa)
-
-function hidratarUser(raw) {
-  const c = new Cliente(raw.nome, raw.saldo, raw.cpf, raw.cep, raw.email, raw.senha);
-  c.movimentacoes = Array.isArray(raw.movimentacoes) ? raw.movimentacoes.map(m => Object.assign(new Transacao(), m)) : [];
-  return c;
-}
-
-function desidatarUser(cliente) {
-  return {
-    nome: cliente.nome, email: cliente.email, cpf: cliente.cpf,
-    cep: cliente.cep, saldo: cliente.saldo, senha: cliente.senha,
-    movimentacoes: cliente.movimentacoes
-  };
-}
-
-function userDeposito(valor){
-    // não funciona pois é um objeto plano, não uma instância de Cliente
-
-    user_atual = loadCurrentUser()
-    user_atual.deposito(valor)
-    saveCurrentUser(user_atual)
 }
