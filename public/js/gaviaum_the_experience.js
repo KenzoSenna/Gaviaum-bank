@@ -3,10 +3,6 @@
 
 // let myuuid = uuidv4();
 
-class Agencia{
-    
-}
-
 class Cliente{
     nome
     email
@@ -20,7 +16,7 @@ class Cliente{
         this.nome = nome
         this.saldo = saldo
         this.cpf = this.validaCPF(cpf)
-        this.cep = this.validarcep(cep)
+        this.cep = cep // Set raw value; validate asynchronously after construction
         this.email = email
         this.senha = senha
     }
@@ -75,12 +71,12 @@ class Cliente{
     return cpf
     }
 
-    async validarcep(cepe) {
+    async validarcep(cep) {
         try {
-            const response = await fetch(`http://viacep.com.br/ws/${cepe}/json/`);
-            const cep = await response.json();
-            if (cep){
-                return cepe
+            const response = await fetch(`http://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+            if (data){
+                return cep
             }
             else{
                 return false
@@ -92,14 +88,38 @@ class Cliente{
 
     saque(valor){
         let tipo = 'Saque'
-        this.saldo -= valor
-        this.movimentacoes.push(new Transacao(tipo, valor))
+        try{
+            if (isNaN(valor) || valor <= 0) {
+                throw new Error('Valor inválido para saque')
+            }
+            if (valor > this.saldo){
+                throw new Error('Saldo insuficiente para saque')
+            }
+            else{
+                this.saldo -= valor
+                this.movimentacoes.push(new Transacao(tipo, valor))
+            }
+        }
+
+        catch (error){
+            throw new Error(`Erro ao realizar saque: ${error}`);
+        }
     }
 
     deposito(valor){
         let tipo = 'Depósito'
-        this.saldo += valor
-        this.movimentacoes.push(new Transacao(tipo, valor))
+        try{
+            if (isNaN(valor) || valor <= 0) {
+                throw new Error('Valor inválido para depósito')
+            }
+            else{
+                this.saldo += valor
+                this.movimentacoes.push(new Transacao(tipo, valor))
+            }
+        }
+        catch (error){
+            throw new Error(`Erro ao realizar depósito: ${error}`);
+        }
     }
 
     transferencia(valor, pessoa2){
@@ -140,11 +160,130 @@ class Transacao{
 
 }
 
-let headson = new Cliente("headson", 110,"09171634193", 79630580)
-let kenzo = new Cliente("kenzo", 120, "09171634193", 79630580)
-kenzo.saque(100)
-console.log(kenzo.saldo)
-console.log(kenzo.transferencia(10, headson))
-kenzo.deposito(1000)
-headson.deposito(12)
-console.log(kenzo.movimentacoes)
+function loadUsers() {
+  return JSON.parse(localStorage.getItem('users') || '[]');
+}
+function saveUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+function loadCurrentUser() {
+  return JSON.parse(localStorage.getItem('currentUser') || 'null');
+}
+function saveCurrentUser(user) {
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  // também atualiza o array users para persistir mudanças
+  const users = loadUsers();
+  const i = users.findIndex(u => u.cpf === user.cpf || u.email === user.email); // Ambos são atributos únicos, coloquei como se fossem ID's
+  if (i >= 0) {
+    users[i] = { ...users[i], ...user }; // sobrescreve campos (saldo, movimentacoes etc)
+    saveUsers(users);
+  }
+}
+
+// Funções de hidratação e desidratação (usar um localStorage e transforma-lo em objeto Cliente e vice-versa)
+// Isso indica qq na verdade, estamos serializando no json, mas por ter aprendido como hidratar e desidratar, ficou assim
+
+function hidratarUser(local_storage_descompactado) {
+  const c = new Cliente(local_storage_descompactado.nome, local_storage_descompactado.saldo, local_storage_descompactado.cpf, local_storage_descompactado.cep, local_storage_descompactado.email, local_storage_descompactado.senha);
+  c.movimentacoes = Array.isArray(local_storage_descompactado.movimentacoes)
+    ? local_storage_descompactado.movimentacoes.map(m => {
+        const t = new Transacao(m.tipo, m.valor);
+        t.id_transaction = m.id_transaction;
+        t.timeStamp = m.timeStamp ? new Date(m.timeStamp) : new Date();
+        return t;
+      })
+    : [];
+  return c;
+}
+
+function desidratarUser(cliente) {
+  return {
+    nome: cliente.nome, email: cliente.email, cpf: cliente.cpf,
+    cep: cliente.cep, saldo: cliente.saldo, senha: cliente.senha,
+    movimentacoes: cliente.movimentacoes
+  };
+}
+
+function userDeposito(valor){
+    const user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.deposito(valor)
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+    
+}
+
+function userSaque(valor){
+    const user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.saque(valor)
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+}   
+
+function userTransferencia(valor, pessoa2_cpf){
+    const user_atual = hidratarUser(loadCurrentUser())
+    const destinatario = loadUsers()
+    user_atual.transferencia(valor, destinatario)
+    const users = loadUsers()
+    const i = users.findIndex(u => u.cpf === pessoa2_cpf);
+
+    
+    if (i >= 0) {
+        user_atual.transferencia(valor, pessoa2_cpf)
+        users[i] = { ...users[i], ...user_atual }; // sobrescreve campos (saldo, movimentacoes etc)
+        saveUsers(users);
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+}
+
+// Sim, eu desisti de modularizar tudo isso.
+// Depósito
+
+document.getElementById('deposito').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const { valor } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para depósito.');
+        return;
+    }
+    userDeposito(numValor);
+
+})
+
+// saque
+
+document.getElementById('saque').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para saque.');
+        return;
+    }
+    userSaque(numValor);
+})
+
+// transferencia
+
+document.getElementById('transferencia').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor, cpf_destino } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para transferência.');
+        return;
+    }
+    userTransferencia(numValor, cpf_destino);
+})
