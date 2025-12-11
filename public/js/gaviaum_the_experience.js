@@ -2,11 +2,6 @@
 // import v4 from 'uuid';
 
 // let myuuid = uuidv4();
-const usuarios_criados = []
-class Agencia{
-    
-}
-
 
 class Cliente{
     nome
@@ -21,7 +16,7 @@ class Cliente{
         this.nome = nome
         this.saldo = saldo
         this.cpf = this.validaCPF(cpf)
-        this.cep = this.validarcep(cep)
+        this.cep = cep // Set raw value; validate asynchronously after construction
         this.email = email
         this.senha = senha
     }
@@ -76,12 +71,12 @@ class Cliente{
     return cpf
     }
 
-    async validarcep(cepe) {
+    async validarcep(cep) {
         try {
-            const response = await fetch(`http://viacep.com.br/ws/${cepe}/json/`);
-            const cep = await response.json();
-            if (cep){
-                return cepe
+            const response = await fetch(`http://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+            if (data){
+                return cep
             }
             else{
                 return false
@@ -93,14 +88,38 @@ class Cliente{
 
     saque(valor){
         let tipo = 'Saque'
-        this.saldo -= valor
-        this.movimentacoes.push(new Transacao(tipo, valor))
+        try{
+            if (isNaN(valor) || valor <= 0) {
+                throw new Error('Valor inválido para saque')
+            }
+            if (valor > this.saldo){
+                throw new Error('Saldo insuficiente para saque')
+            }
+            else{
+                this.saldo -= valor
+                this.movimentacoes.push(new Transacao(tipo, valor))
+            }
+        }
+
+        catch (error){
+            throw new Error(`Erro ao realizar saque: ${error}`);
+        }
     }
 
     deposito(valor){
         let tipo = 'Depósito'
-        this.saldo += valor
-        this.movimentacoes.push(new Transacao(tipo, valor))
+        try{
+            if (isNaN(valor) || valor <= 0) {
+                throw new Error('Valor inválido para depósito')
+            }
+            else{
+                this.saldo += valor
+                this.movimentacoes.push(new Transacao(tipo, valor))
+            }
+        }
+        catch (error){
+            throw new Error(`Erro ao realizar depósito: ${error}`);
+        }
     }
 
     transferencia(valor, pessoa2){
@@ -160,46 +179,24 @@ function saveCurrentUser(user) {
     saveUsers(users);
   }
 }
-// Sim, eu desisti de modularizar tudo isso.
-// Deposito
-
-document.getElementById('login').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const { valor } = Object.fromEntries(new FormData(e.target))
-    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
-    user_atual.deposito(valor)
-
-})
-
-// saque
-
-document.getElementById('saque').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const { valor } = Object.fromEntries(new FormData(e.target))
-    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
-    user_atual.saque(valor)
-})
-
-// transferencia
-
-document.getElementById('transferencia').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const { valor, cpf_destino } = Object.fromEntries(new FormData(e.target))
-    const user_atual = JSON.parse(localStorage.getItem('currentUser'))
-    const destinatario = usuarios_criados.find(user => user.cpf === cpf_destino)
-    user_atual.transferencia(valor, destinatario)
-})
 
 // Funções de hidratação e desidratação (usar um localStorage e transforma-lo em objeto Cliente e vice-versa)
+// Isso indica qq na verdade, estamos serializando no json, mas por ter aprendido como hidratar e desidratar, ficou assim
 
-function hidratarUser(raw) {
-  const c = new Cliente(raw.nome, raw.saldo, raw.cpf, raw.cep, raw.email, raw.senha);
-  c.movimentacoes = Array.isArray(raw.movimentacoes) ? raw.movimentacoes.map(m => Object.assign(new Transacao(), m)) : [];
+function hidratarUser(local_storage_descompactado) {
+  const c = new Cliente(local_storage_descompactado.nome, local_storage_descompactado.saldo, local_storage_descompactado.cpf, local_storage_descompactado.cep, local_storage_descompactado.email, local_storage_descompactado.senha);
+  c.movimentacoes = Array.isArray(local_storage_descompactado.movimentacoes)
+    ? local_storage_descompactado.movimentacoes.map(m => {
+        const t = new Transacao(m.tipo, m.valor);
+        t.id_transaction = m.id_transaction;
+        t.timeStamp = m.timeStamp ? new Date(m.timeStamp) : new Date();
+        return t;
+      })
+    : [];
   return c;
 }
 
-function desidatarUser(cliente) {
+function desidratarUser(cliente) {
   return {
     nome: cliente.nome, email: cliente.email, cpf: cliente.cpf,
     cep: cliente.cep, saldo: cliente.saldo, senha: cliente.senha,
@@ -208,9 +205,85 @@ function desidatarUser(cliente) {
 }
 
 function userDeposito(valor){
-    // não funciona pois é um objeto plano, não uma instância de Cliente
-
-    user_atual = loadCurrentUser()
-    user_atual.deposito(valor)
-    saveCurrentUser(user_atual)
+    const user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.deposito(valor)
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+    
 }
+
+function userSaque(valor){
+    const user_atual = hidratarUser(loadCurrentUser())
+    try{
+        user_atual.saque(valor)
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+    catch (err){
+        alert (err.message)
+    }
+}   
+
+function userTransferencia(valor, pessoa2_cpf){
+    const user_atual = hidratarUser(loadCurrentUser())
+    const destinatario = loadUsers()
+    user_atual.transferencia(valor, destinatario)
+    const users = loadUsers()
+    const i = users.findIndex(u => u.cpf === pessoa2_cpf);
+
+    
+    if (i >= 0) {
+        user_atual.transferencia(valor, pessoa2_cpf)
+        users[i] = { ...users[i], ...user_atual }; // sobrescreve campos (saldo, movimentacoes etc)
+        saveUsers(users);
+        const userDesidratado = desidratarUser(user_atual)
+        saveCurrentUser(userDesidratado)
+    }
+}
+
+// Sim, eu desisti de modularizar tudo isso.
+// Depósito
+
+document.getElementById('deposito').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const { valor } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para depósito.');
+        return;
+    }
+    userDeposito(numValor);
+
+})
+
+// saque
+
+document.getElementById('saque').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para saque.');
+        return;
+    }
+    userSaque(numValor);
+})
+
+// transferencia
+
+document.getElementById('transferencia').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const { valor, cpf_destino } = Object.fromEntries(new FormData(e.target));
+    const numValor = Number(valor);
+    if (isNaN(numValor) || numValor <= 0) {
+        alert('Por favor, insira um valor numérico positivo para transferência.');
+        return;
+    }
+    userTransferencia(numValor, cpf_destino);
+})
