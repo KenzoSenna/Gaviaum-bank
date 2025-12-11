@@ -2,9 +2,6 @@
 // import v4 from 'uuid';
 
 // let myuuid = uuidv4();
-class Agencia{
-    
-}
 
 class Cliente{
     nome

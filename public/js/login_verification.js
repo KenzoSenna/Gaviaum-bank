@@ -1,4 +1,4 @@
-document.getElementById('deposito').addEventListener('submit', (e) => {
+document.getElementById('login').addEventListener('submit', (e) => {
     e.preventDefault();
     const { email, senha } = Object.fromEntries(new FormData(e.target));
     const users = JSON.parse(localStorage.getItem('users') || '[]');
